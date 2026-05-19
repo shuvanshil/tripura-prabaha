@@ -77,14 +77,14 @@ header {
   padding: 14px 0;
   gap: 20px;
 }
-.logo { display: flex; flex-direction: column; align-items: flex-start; }
+.logo { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; }
 .logo-bengali {
   font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 700;
   color: var(--red);
   line-height: 1;
-  letter-spacing: -0.5px;
+  letter-spacing: 1px;
 }
 .logo-tagline {
   font-size: 0.72rem;
