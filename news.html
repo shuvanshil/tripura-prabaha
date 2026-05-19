@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#C8102E">
+  <title>সংবাদ | ত্রিপুরা প্রবাহ</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="top-bar"><div class="container"><div class="top-date"></div><a href="index.html">হোম</a></div></div>
+  <header>
+    <div class="container header-main">
+      <a class="logo" href="index.html"><span class="logo-bengali">ত্রিপুরা প্রবাহ</span><span class="logo-tagline">Tripura Probaho</span></a>
+      <a class="btn-admin" href="admin.html">Admin</a>
+    </div>
+  </header>
+  <main class="article-page">
+    <div class="container two-col">
+      <article id="article-detail" class="article-detail skeleton-article"></article>
+      <aside class="sidebar">
+        <div class="sidebar-widget">
+          <div class="widget-title">আরও পড়ুন</div>
+          <div id="related-list" class="widget-body news-list"></div>
+        </div>
+        <div class="sidebar-widget">
+          <div class="widget-title">জনপ্রিয় সংবাদ</div>
+          <div id="popular-list" class="widget-body"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <footer><div class="footer-bottom">© <span id="year"></span> ত্রিপুরা প্রবাহ</div></footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

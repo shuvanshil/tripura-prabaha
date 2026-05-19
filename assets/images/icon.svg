@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#C8102E"/>
+  <rect x="72" y="118" width="368" height="276" rx="22" fill="#fff"/>
+  <rect x="104" y="154" width="304" height="34" fill="#C8102E"/>
+  <rect x="104" y="220" width="138" height="118" fill="#C8102E"/>
+  <rect x="266" y="220" width="142" height="18" fill="#111"/>
+  <rect x="266" y="258" width="142" height="18" fill="#111"/>
+  <rect x="266" y="296" width="110" height="18" fill="#111"/>
+  <text x="256" y="451" text-anchor="middle" font-size="58" font-family="serif" font-weight="700" fill="#fff">ত্রিপুরা প্রবাহ</text>
+</svg>

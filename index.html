@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#C8102E">
+  <meta name="description" content="ত্রিপুরা প্রবাহ - ত্রিপুরার সর্বশেষ বাংলা খবর">
+  <title>ত্রিপুরা প্রবাহ | বাংলা সংবাদ</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-date"></div>
+      <div><a href="admin.html">Admin</a></div>
+    </div>
+  </div>
+
+  <header>
+    <div class="container header-main">
+      <a class="logo" href="index.html">
+        <span class="logo-bengali">ত্রিপুরা প্রবাহ</span>
+        <span class="logo-tagline">Tripura Prabaha</span>
+      </a>
+      <div class="header-right">
+        <button class="btn-install" onclick="installApp()">অ্যাপ ইনস্টল</button>
+        <a class="btn-admin" href="admin.html">Log In</a>
+      </div>
+    </div>
+    <nav class="nav-bar">
+      <div class="container">
+        <div class="nav-links">
+          <a href="index.html" class="active" >সর্বশেষ</a>
+          <a href="category.html?cat=রাজনীতি" >রাজনীতি</a>
+          <a href="category.html?cat=খেলাধুলা" >খেলাধুলা</a>
+          <a href="category.html?cat=বিনোদন" >বিনোদন</a>
+          <a href="category.html?cat=আন্তর্জাতিক" >আন্তর্জাতিক</a>
+          <a href="category.html?cat=প্রযুক্তি" >প্রযুক্তি</a>
+          <a href="category.html?cat=স্বাস্থ্য" >স্বাস্থ্য</a>
+          <a href="category.html?cat=শিক্ষা" >শিক্ষা</a>
+          <a href="category.html?cat=ব্যবসা" >ব্যবসা</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <section class="ticker-wrap">
+    <div class="ticker-label">ব্রেকিং</div>
+    <div class="ticker-content"><div class="ticker-scroll"></div></div>
+  </section>
+
+  <main>
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          <article class="hero-main"></article>
+          <article class="hero-side-top"></article>
+          <article class="hero-side-bottom"></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container two-col">
+        <div>
+          <div class="section-title">
+            <span class="title-bar"></span>
+            <h2>সর্বশেষ সংবাদ</h2>
+          </div>
+          <div id="news-grid" class="news-grid"></div>
+          <div class="load-more-wrap">
+            <button id="load-more" class="btn-load-more">আরও দেখুন</button>
+          </div>
+        </div>
+        <aside class="sidebar">
+          <div class="sidebar-widget">
+            <div class="widget-title">জনপ্রিয় সংবাদ</div>
+            <div id="popular-list" class="widget-body"></div>
+          </div>
+          <div class="sidebar-widget">
+            <div class="widget-title">বিভাগ</div>
+            <div class="widget-body category-pill-grid">
+              <a class="category-pill" href="category.html?cat=রাজনীতি">রাজনীতি</a>
+              <a class="category-pill" href="category.html?cat=খেলাধুলা">খেলাধুলা</a>
+              <a class="category-pill" href="category.html?cat=বিনোদন">বিনোদন</a>
+              <a class="category-pill" href="category.html?cat=আন্তর্জাতিক">আন্তর্জাতিক</a>
+              <a class="category-pill" href="category.html?cat=প্রযুক্তি">প্রযুক্তি</a>
+              <a class="category-pill" href="category.html?cat=স্বাস্থ্য">স্বাস্থ্য</a>
+              <a class="category-pill" href="category.html?cat=শিক্ষা">শিক্ষা</a>
+              <a class="category-pill" href="category.html?cat=ব্যবসা">ব্যবসা</a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-main">
+      <div>
+        <div class="footer-logo-text">ত্রিপুরা প্রবাহ</div>
+        <p class="footer-desc">ত্রিপুরা, দেশ ও বিশ্বের নির্ভরযোগ্য বাংলা সংবাদ।</p>
+      </div>
+      <div class="footer-col">
+        <h4>বিভাগ</h4>
+        <ul>
+          <li><a href="category.html?cat=রাজনীতি">রাজনীতি</a></li>
+          <li><a href="category.html?cat=খেলাধুলা">খেলাধুলা</a></li>
+          <li><a href="category.html?cat=প্রযুক্তি">প্রযুক্তি</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>যোগাযোগ</h4>
+        <ul><li><a href="admin.html">Admin Panel</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© <span id="year"></span> ত্রিপুরা প্রবাহ</div>
+  </footer>
+
+  <div id="install-banner">
+    <div class="install-text">
+      <strong>ত্রিপুরা প্রবাহ ইনস্টল করুন</strong>
+      <span>দ্রুত খবর পড়ুন অ্যাপের মাধ্যমে।</span>
+    </div>
+    <button class="btn-install-now" onclick="installApp()">Install</button>
+    <button class="btn-close-install" onclick="this.parentElement.classList.remove('show')">×</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

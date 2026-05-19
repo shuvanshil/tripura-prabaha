@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#C8102E">
+  <title>Admin | ত্রিপুরা প্রবাহ</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+  <main class="admin-shell">
+    <section id="login-card" class="admin-card">
+      <a class="admin-home-link" href="index.html">← ওয়েবসাইটে ফিরুন</a>
+      <h1>ত্রিপুরা প্রবাহ Admin</h1>
+      <p>Email/password দিয়ে লগইন করুন, তারপর OTP যাচাই করুন।</p>
+
+      <form id="email-login-form" class="admin-form">
+        <label>Email</label>
+        <input id="admin-email" type="email" autocomplete="email" required>
+        <label>Password</label>
+        <input id="admin-password" type="password" autocomplete="current-password" required>
+        <label>Phone number for OTP</label>
+        <input id="admin-phone" type="tel" placeholder="+91XXXXXXXXXX" required>
+        <div id="recaptcha-container"></div>
+        <button class="admin-primary" type="submit">OTP পাঠান</button>
+      </form>
+
+      <form id="otp-form" class="admin-form hidden">
+        <label>OTP Code</label>
+        <input id="admin-otp" type="text" inputmode="numeric" autocomplete="one-time-code" required>
+        <button class="admin-primary" type="submit">Dashboard খুলুন</button>
+      </form>
+      <div id="admin-message" class="admin-message"></div>
+    </section>
+
+    <section id="dashboard" class="admin-dashboard hidden">
+      <div class="admin-top">
+        <div>
+          <h1>News Dashboard</h1>
+          <p id="admin-user"></p>
+        </div>
+        <div class="admin-actions">
+          <a class="admin-secondary" href="index.html">Site</a>
+          <button id="logout-btn" class="admin-secondary">Logout</button>
+        </div>
+      </div>
+
+      <div class="admin-layout">
+        <form id="news-form" class="admin-card admin-form editor-card">
+          <input type="hidden" id="news-id">
+          <h2 id="editor-title">নতুন সংবাদ</h2>
+          <label>Title</label>
+          <input id="news-title" type="text" required>
+          <label>Category</label>
+          <select id="news-category" required>
+            <option value="রাজনীতি">রাজনীতি</option>
+            <option value="খেলাধুলা">খেলাধুলা</option>
+            <option value="বিনোদন">বিনোদন</option>
+            <option value="আন্তর্জাতিক">আন্তর্জাতিক</option>
+            <option value="প্রযুক্তি">প্রযুক্তি</option>
+            <option value="স্বাস্থ্য">স্বাস্থ্য</option>
+            <option value="শিক্ষা">শিক্ষা</option>
+            <option value="ব্যবসা">ব্যবসা</option>
+          </select>
+          <label>Excerpt</label>
+          <textarea id="news-excerpt" rows="3"></textarea>
+          <label>Content</label>
+          <textarea id="news-content" rows="10" required></textarea>
+          <label>Image URL</label>
+          <input id="news-image-url" type="url" placeholder="https://...">
+          <label>Or upload image</label>
+          <input id="news-image-file" type="file" accept="image/*">
+          <div class="admin-checks">
+            <label><input id="news-published" type="checkbox" checked> Published</label>
+            <label><input id="news-featured" type="checkbox"> Featured</label>
+            <label><input id="news-breaking" type="checkbox"> Breaking</label>
+          </div>
+          <div class="admin-actions">
+            <button class="admin-primary" type="submit">Save News</button>
+            <button id="reset-form" class="admin-secondary" type="button">Clear</button>
+          </div>
+        </form>
+
+        <section class="admin-card">
+          <h2>Published/ Draft News</h2>
+          <div id="admin-news-list" class="admin-news-list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
