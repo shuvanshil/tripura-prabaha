@@ -1,22 +1,24 @@
 {
-  "name": "ত্রিপুরা প্রবাহ",
-  "short_name": "ত্রিপুরা প্রবাহ",
-  "description": "ত্রিপুরার সর্বশেষ বাংলা খবর",
-  "start_url": "index.html",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#C8102E",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "assets/images/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ],
-  "categories": ["news"],
-  "lang": "bn",
-  "screenshots": []
+    "name": "ত্রিপুরা প্রবাহ",
+    "short_name": "ত্রিপুরা প্রবাহ",
+    "description": "ত্রিপুরার সর্বশেষ বাংলা খবর",
+    "start_url": "index.html",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#C8102E",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "assets/images/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "news"
+    ],
+    "lang": "bn",
+    "screenshots": []
 }

@@ -17,6 +17,11 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    match /ads/{adId} {
+      allow read: if resource.data.active == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
     match /admins/{adminId} {
       allow read: if signedIn() && request.auth.uid == adminId;
       allow write: if false;

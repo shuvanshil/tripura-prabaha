@@ -9,13 +9,14 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="top-bar"><div class="container"><div class="top-date"></div><a href="index.html">হোম</a></div></div>
+  <div class="top-bar"><div class="container"><div class="top-date"></div><a href="admin.html">Admin</a></div></div>
   <header>
     <div class="container header-main">
-      <a class="logo" href="index.html"><span class="logo-bengali">ত্রিপুরা প্রবাহ</span><span class="logo-tagline">Tripura Probaho</span></a>
-      <a class="btn-admin" href="admin.html">Admin</a>
+      <a class="logo" href="index.html"><span class="logo-bengali">ত্রিপুরা প্রবাহ</span><span class="logo-tagline">Tripura Probaho</span><span class="logo-rni">RNI : TRIBEN/2006/18469</span></a>
+      <!-- <a class="btn-admin" href="admin.html">Admin</a> -->
+      <a class="btn-admin" href="index.html">Home</a></div>
     </div>
-    <nav class="nav-bar">
+    <nav class="nav-bar">     
       <div class="container"><div class="nav-links">
         <a href="index.html">সর্বশেষ</a>
         <a href="category.html?cat=রাজনীতি" data-cat="রাজনীতি">রাজনীতি</a>
@@ -30,16 +31,54 @@
     </nav>
   </header>
   <main class="section">
-    <div class="container">
-      <div class="section-title">
-        <span class="title-bar"></span>
-        <h2 id="category-title">বিভাগ</h2>
+    <div class="container two-col">
+      <div>
+        <div class="section-title">
+          <span class="title-bar"></span>
+          <h2 id="category-title">বিভাগ</h2>
+        </div>
+        <div id="category-grid" class="news-grid"></div>
+        <div class="load-more-wrap"><button id="category-load-more" class="btn-load-more">আরও দেখুন</button></div>
       </div>
-      <div id="category-grid" class="news-grid"></div>
-      <div class="load-more-wrap"><button id="category-load-more" class="btn-load-more">আরও দেখুন</button></div>
+      <aside class="sidebar">
+        <div class="sidebar-widget ad-widget">
+          <div class="widget-title">বিজ্ঞাপন</div>
+          <div id="ad-list" class="widget-body ad-list"></div>
+        </div>
+      </aside>
     </div>
   </main>
-  <footer><div class="footer-bottom">© <span id="year"></span> ত্রিপুরা প্রবাহ</div></footer>
+
+  <footer>
+    <div class="container footer-main">
+      <div>
+        <div class="footer-logo-text">ত্রিপুরা প্রবাহ</div>
+        <p class="footer-desc">ত্রিপুরা, দেশ ও বিশ্বের নির্ভরযোগ্য বাংলা সংবাদ।</p>
+      </div>
+      <div class="footer-col">
+        <h4>বিভাগ</h4>
+        <ul>
+          <li><a href="category.html?cat=রাজনীতি">রাজনীতি</a></li>
+          <li><a href="category.html?cat=খেলাধুলা">খেলাধুলা</a></li>
+          <li><a href="category.html?cat=প্রযুক্তি">প্রযুক্তি</a></li>
+          <li><a href="category.html?cat=শিক্ষা" >শিক্ষা</a></li>
+          <li><a href="category.html?cat=স্বাস্থ্য" >স্বাস্থ্য</a></li>
+          
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>যোগাযোগ</h4>
+        <ul>
+          <li>Publisher : Pralayendu Chaudhuri</li>
+          <li>Phone : 8132861980</li>
+          <li>WhatsApp : 9402358325</li>
+          <li>Email : </li>
+          <li>Address : Kailashahr, Unakoti Tripura</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© <span id="year"></span> ত্রিপুরা প্রবাহ </div>
+  </footer>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>

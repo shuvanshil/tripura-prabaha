@@ -44,6 +44,7 @@
           <button id="logout-btn" class="admin-secondary">Logout</button>
         </div>
       </div>
+      <div id="dashboard-message" class="admin-message dashboard-message"></div>
 
       <div class="admin-layout">
         <form id="news-form" class="admin-card admin-form editor-card">
@@ -80,10 +81,38 @@
             <button id="reset-form" class="admin-secondary" type="button">Clear</button>
           </div>
         </form>
-
+        
         <section class="admin-card">
           <h2>Published/ Draft News</h2>
           <div id="admin-news-list" class="admin-news-list"></div>
+        </section>
+      </div>
+
+      <div class="admin-layout admin-layout-secondary">
+        <form id="ad-form" class="admin-card admin-form editor-card" novalidate>
+          <input type="hidden" id="ad-id">
+          <h2 id="ad-editor-title">নতুন বিজ্ঞাপন</h2>
+          <label>Advertiser / Title</label>
+          <input id="ad-title" type="text" placeholder="Example: Puja Offer" required>
+          <label>Poster Image URL</label>
+          <input id="ad-image-url" type="text" placeholder="https://...">
+          <label>Or upload poster</label>
+          <input id="ad-image-file" type="file" accept="image/*">
+          <label>Click Link URL</label>
+          <input id="ad-link-url" type="text" placeholder="https://...">
+          <div class="admin-checks">
+            <label><input id="ad-active" type="checkbox" checked> Active</label>
+          </div>
+          <div class="admin-actions">
+            <button class="admin-primary" type="submit">Save Ad</button>
+            <button id="reset-ad-form" class="admin-secondary" type="button">Clear</button>
+          </div>
+          <div id="ad-message" class="admin-message ad-message"></div>
+        </form>
+
+        <section class="admin-card">
+          <h2>Advertisement Posters</h2>
+          <div id="admin-ad-list" class="admin-news-list"></div>
         </section>
       </div>
     </section>
