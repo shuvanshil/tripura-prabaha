@@ -12,22 +12,18 @@
     <section id="login-card" class="admin-card">
       <a class="admin-home-link" href="index.html">← ওয়েবসাইটে ফিরুন</a>
       <h1>ত্রিপুরা প্রবাহ Admin</h1>
-      <p>Email/password দিয়ে লগইন করুন, তারপর OTP যাচাই করুন।</p>
+      <p>Email, phone number এবং password মিললে dashboard খুলবে।</p>
 
       <form id="email-login-form" class="admin-form">
         <label>Email</label>
         <input id="admin-email" type="email" autocomplete="email" required>
         <label>Password</label>
-        <input id="admin-password" type="password" autocomplete="current-password" required>
-        <label>Phone number for OTP</label>
-        <input id="admin-phone" type="tel" placeholder="+91XXXXXXXXXX" required>
-        <div id="recaptcha-container"></div>
-        <button class="admin-primary" type="submit">OTP পাঠান</button>
-      </form>
-
-      <form id="otp-form" class="admin-form hidden">
-        <label>OTP Code</label>
-        <input id="admin-otp" type="text" inputmode="numeric" autocomplete="one-time-code" required>
+        <div class="password-wrap">
+          <input id="admin-password" type="password" autocomplete="current-password" required>
+          <button id="toggle-password" class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">👁</button>
+        </div>
+        <label>Admin phone number</label>
+        <input id="admin-phone" type="tel" placeholder="10 digit mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
         <button class="admin-primary" type="submit">Dashboard খুলুন</button>
       </form>
       <div id="admin-message" class="admin-message"></div>
@@ -69,8 +65,6 @@
           <textarea id="news-content" rows="10" required></textarea>
           <label>Image URL</label>
           <input id="news-image-url" type="url" placeholder="https://...">
-          <label>Or upload image</label>
-          <input id="news-image-file" type="file" accept="image/*">
           <div class="admin-checks">
             <label><input id="news-published" type="checkbox" checked> Published</label>
             <label><input id="news-featured" type="checkbox"> Featured</label>
@@ -96,8 +90,6 @@
           <input id="ad-title" type="text" placeholder="Example: Puja Offer" required>
           <label>Poster Image URL</label>
           <input id="ad-image-url" type="text" placeholder="https://...">
-          <label>Or upload poster</label>
-          <input id="ad-image-file" type="file" accept="image/*">
           <label>Click Link URL</label>
           <input id="ad-link-url" type="text" placeholder="https://...">
           <div class="admin-checks">

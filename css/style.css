@@ -900,6 +900,30 @@ footer {
   border-color: var(--red);
   box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.12);
 }
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrap input {
+  padding-right: 46px;
+}
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  color: var(--gray-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+.password-toggle:hover {
+  background: var(--bg);
+  color: var(--red);
+}
 .admin-primary,
 .admin-secondary {
   border-radius: var(--radius);

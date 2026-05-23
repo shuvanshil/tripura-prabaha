@@ -3,11 +3,9 @@
 const $ = id => document.getElementById(id);
 
 let currentUser = null;
-let recaptchaVerifier = null;
-let confirmationResult = null;
 let unsubscribeNews = null;
 let unsubscribeAds = null;
-const OTP_SESSION_KEY = 'tripuraAdminOtpUid';
+const ADMIN_SESSION_KEY = 'tripuraAdminUid';
 
 function safeText(value = '') {
     return String(value).replace(/[&<>"']/g, char => ({
@@ -34,6 +32,17 @@ function setAdMessage(message, type = 'info') {
     el.className = `admin-message ad-message ${type}`;
 }
 
+function normalizeIndianPhone(input) {
+    const digits = String(input || '').replace(/\D/g, '');
+    if (digits.length === 10) return `+91${digits}`;
+    if (digits.length === 12 && digits.startsWith('91')) return `+${digits}`;
+    return '';
+}
+
+function phoneMatches(inputPhone, storedPhone) {
+    return normalizeIndianPhone(inputPhone) === normalizeIndianPhone(storedPhone);
+}
+
 function showLogin() {
     $('login-card')?.classList.remove('hidden');
     $('dashboard')?.classList.add('hidden');
@@ -48,20 +57,15 @@ function showDashboard(user) {
     listenAds();
 }
 
-async function isAdmin(user) {
+async function getAdminDoc(user) {
     if (!user) return false;
     const doc = await db.collection('admins').doc(user.uid).get();
-    return doc.exists && doc.data().active !== false;
+    if (!doc.exists || doc.data().active === false) return null;
+    return doc;
 }
 
-function setupRecaptcha() {
-    if (recaptchaVerifier) return recaptchaVerifier;
-    recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        size: 'normal',
-        callback: () => setMessage('reCAPTCHA সম্পন্ন হয়েছে।', 'success')
-    });
-    recaptchaVerifier.render();
-    return recaptchaVerifier;
+async function isAdmin(user) {
+    return !!(await getAdminDoc(user));
 }
 
 async function handleEmailLogin(event) {
@@ -69,54 +73,35 @@ async function handleEmailLogin(event) {
     setMessage('লগইন হচ্ছে...');
     const email = $('admin-email').value.trim();
     const password = $('admin-password').value;
-    const phone = $('admin-phone').value.trim();
+    const phone = normalizeIndianPhone($('admin-phone').value);
 
-    try {
-        const cred = await auth.signInWithEmailAndPassword(email, password);
-        if (!(await isAdmin(cred.user))) {
-            await auth.signOut();
-            setMessage('এই অ্যাকাউন্টে admin অনুমতি নেই। Firestore admins collection দেখুন।', 'error');
-            return;
-        }
-
-        setupRecaptcha();
-        confirmationResult = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
-        currentUser = cred.user;
-        $('otp-form')?.classList.remove('hidden');
-        setMessage('OTP পাঠানো হয়েছে। কোড লিখে যাচাই করুন।', 'success');
-    } catch (error) {
-        console.error(error);
-        setMessage(error.message || 'লগইন করা যায়নি।', 'error');
-        if (recaptchaVerifier) recaptchaVerifier.clear();
-        recaptchaVerifier = null;
-    }
-}
-
-async function handleOtp(event) {
-    event.preventDefault();
-    const code = $('admin-otp').value.trim();
-    if (!confirmationResult) {
-        setMessage('আগে OTP পাঠান।', 'error');
+    if (!phone) {
+        setMessage('১০ সংখ্যার admin মোবাইল নম্বর দিন।', 'error');
         return;
     }
 
     try {
-        await confirmationResult.confirm(code);
-        const email = $('admin-email').value.trim();
-        const password = $('admin-password').value;
         const cred = await auth.signInWithEmailAndPassword(email, password);
-        if (!(await isAdmin(cred.user))) {
+        const adminDoc = await getAdminDoc(cred.user);
+        if (!adminDoc) {
             await auth.signOut();
-            setMessage('Admin অনুমতি পাওয়া যায়নি।', 'error');
+            setMessage('এই অ্যাকাউন্টে admin অনুমতি নেই।', 'error');
             return;
         }
+        const adminPhone = adminDoc.data().phone || adminDoc.data().mobile || adminDoc.data().phoneNumber;
+        if (!adminPhone || !phoneMatches(phone, adminPhone)) {
+            await auth.signOut();
+            setMessage('Phone number admin record এর সাথে মিলছে না।', 'error');
+            return;
+        }
+
         currentUser = cred.user;
-        sessionStorage.setItem(OTP_SESSION_KEY, cred.user.uid);
+        sessionStorage.setItem(ADMIN_SESSION_KEY, cred.user.uid);
         setMessage('');
         showDashboard(cred.user);
     } catch (error) {
         console.error(error);
-        setMessage(error.message || 'OTP যাচাই করা যায়নি।', 'error');
+        setMessage(error.message || 'লগইন করা যায়নি।', 'error');
     }
 }
 
@@ -135,24 +120,6 @@ function resetAdForm() {
     setAdMessage('');
 }
 
-async function uploadImage(file, folder = 'news-images') {
-    if (!file) return '';
-    if (!file.type || !file.type.startsWith('image/')) {
-        throw new Error('শুধু image file upload করা যাবে।');
-    }
-    if (file.size > 5 * 1024 * 1024) {
-        throw new Error('Image size 5MB এর কম হতে হবে।');
-    }
-    const safeName = file.name.replace(/[^a-z0-9.\-_]/gi, '-').toLowerCase();
-    const path = `${folder}/${Date.now()}-${safeName}`;
-    const upload = storage.ref(path).put(file, { contentType: file.type });
-    const snap = await Promise.race([
-        upload,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Image upload timeout. Firebase Storage enabled/rules published আছে কিনা দেখুন।')), 45000))
-    ]);
-    return snap.ref.getDownloadURL();
-}
-
 async function handleSaveNews(event) {
     event.preventDefault();
     if (!currentUser) return;
@@ -160,9 +127,7 @@ async function handleSaveNews(event) {
     try {
         setMessage('সংবাদ সেভ হচ্ছে...');
         const id = $('news-id').value;
-        const file = $('news-image-file').files[0];
-        const uploadedUrl = file ? await uploadImage(file, 'news-images') : '';
-        const imageUrl = uploadedUrl || $('news-image-url').value.trim();
+        const imageUrl = $('news-image-url').value.trim();
         const now = firebase.firestore.FieldValue.serverTimestamp();
 
         const payload = {
@@ -206,10 +171,7 @@ async function handleSaveAd(event) {
         setAdMessage('বিজ্ঞাপন সেভ হচ্ছে...');
         const id = $('ad-id').value;
         const title = $('ad-title').value.trim();
-        const file = $('ad-image-file').files[0];
-        const pastedUrl = $('ad-image-url').value.trim();
-        const uploadedUrl = file ? await uploadImage(file, 'ad-images') : '';
-        const imageUrl = uploadedUrl || pastedUrl;
+        const imageUrl = $('ad-image-url').value.trim();
         const linkUrl = $('ad-link-url').value.trim();
 
         if (!title) {
@@ -217,7 +179,7 @@ async function handleSaveAd(event) {
             return;
         }
         if (!imageUrl) {
-            setAdMessage('বিজ্ঞাপনের জন্য poster image URL বা upload image দিন।', 'error');
+            setAdMessage('বিজ্ঞাপনের জন্য poster image URL দিন।', 'error');
             return;
         }
         if (!/^https?:\/\//i.test(imageUrl)) {
@@ -388,15 +350,29 @@ async function deleteNews(id) {
 async function logout() {
     if (unsubscribeNews) unsubscribeNews();
     if (unsubscribeAds) unsubscribeAds();
-    sessionStorage.removeItem(OTP_SESSION_KEY);
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
     await auth.signOut();
     currentUser = null;
     showLogin();
 }
 
+function setupPasswordToggle() {
+    const input = $('admin-password');
+    const button = $('toggle-password');
+    if (!input || !button) return;
+
+    button.addEventListener('click', () => {
+        const shouldShow = input.type === 'password';
+        input.type = shouldShow ? 'text' : 'password';
+        button.setAttribute('aria-pressed', shouldShow ? 'true' : 'false');
+        button.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
+        button.textContent = shouldShow ? '✕' : '👁';
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    setupPasswordToggle();
     $('email-login-form')?.addEventListener('submit', handleEmailLogin);
-    $('otp-form')?.addEventListener('submit', handleOtp);
     $('news-form')?.addEventListener('submit', handleSaveNews);
     $('ad-form')?.addEventListener('submit', handleSaveAd);
     $('reset-form')?.addEventListener('click', resetForm);
@@ -404,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $('logout-btn')?.addEventListener('click', logout);
 
     auth.onAuthStateChanged(async user => {
-        const otpUid = sessionStorage.getItem(OTP_SESSION_KEY);
-        if (user && user.email && otpUid === user.uid && await isAdmin(user)) {
+        const adminUid = sessionStorage.getItem(ADMIN_SESSION_KEY);
+        if (user && user.email && adminUid === user.uid && await isAdmin(user)) {
             currentUser = user;
             showDashboard(user);
         } else {

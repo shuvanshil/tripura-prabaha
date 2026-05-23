@@ -488,3 +488,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loadBtn) loadBtn.addEventListener('click', () => loadCategoryPage(false));
     }
 });
+
+ 
