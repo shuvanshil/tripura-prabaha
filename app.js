@@ -349,6 +349,16 @@ function renderArticle(article, target) {
     const shareTitle = enc(article.title || '');
     const shareUrl = enc(url);
     const paragraphs = safeText(article.content || '').split(/\n{2,}|\r?\n/).filter(Boolean);
+    const galleryImages = Array.isArray(article.galleryImages)
+        ? article.galleryImages.filter(Boolean)
+        : [];
+    const galleryHtml = galleryImages.length ? `
+      <div class="article-gallery">
+        ${galleryImages.map((image, index) => `
+          <img src="${safeImg(image)}" alt="${safeText(article.title)} ছবি ${index + 2}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
+        `).join('')}
+      </div>
+    ` : '';
     target.classList.remove('skeleton-article');
     target.innerHTML = `
     <div class="article-kicker">${safeText(article.category || 'সংবাদ')}</div>
@@ -363,6 +373,7 @@ function renderArticle(article, target) {
       <button onclick="shareGeneral(decodeURIComponent('${shareTitle}'), decodeURIComponent('${shareUrl}'))">Share</button>
     </div>
     <div class="article-content">${paragraphs.map(p => `<p>${p}</p>`).join('')}</div>
+    ${galleryHtml}
   `;
 }
 

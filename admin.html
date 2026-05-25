@@ -63,8 +63,15 @@
           <textarea id="news-excerpt" rows="3"></textarea>
           <label>Content</label>
           <textarea id="news-content" rows="10" required></textarea>
-          <label>Image URL</label>
+          <label>Main Image URL</label>
           <input id="news-image-url" type="url" placeholder="https://...">
+          <label>Extra Image URLs</label>
+          <div class="gallery-url-grid">
+            <input class="gallery-url-input" id="news-gallery-url-1" type="url" placeholder="Extra image 1">
+            <input class="gallery-url-input" id="news-gallery-url-2" type="url" placeholder="Extra image 2">
+            <input class="gallery-url-input" id="news-gallery-url-3" type="url" placeholder="Extra image 3">
+            <input class="gallery-url-input" id="news-gallery-url-4" type="url" placeholder="Extra image 4">
+          </div>
           <div class="admin-checks">
             <label><input id="news-published" type="checkbox" checked> Published</label>
             <label><input id="news-featured" type="checkbox"> Featured</label>

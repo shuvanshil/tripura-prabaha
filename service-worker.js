@@ -1,5 +1,5 @@
 // ত্রিপুরা প্রবাহ — Service Worker
-const CACHE_NAME = 'tripura-probaho-v11';
+const CACHE_NAME = 'tripura-probaho-v12';
 const STATIC_ASSETS = [
     './',
     'index.html',
@@ -11,7 +11,7 @@ const STATIC_ASSETS = [
     'admin.js',
     'firebase-config.js',
     'manifest.json',
-    'assets/images/icon.svg'
+    'assets/images/icon.jpeg'
 ];
 
 // Install — cache static assets
@@ -54,8 +54,8 @@ self.addEventListener('push', event => {
     const title = data.title || 'ত্রিপুরা প্রবাহ';
     const options = {
         body: data.body || 'নতুন খবর আসছে...',
-        icon: 'assets/images/icon.svg',
-        badge: 'assets/images/icon.svg',
+        icon: 'assets/images/icon.jpeg',
+        badge: 'assets/images/icon.jpeg',
         data: { url: data.url || 'index.html' }
     };
     event.waitUntil(self.registration.showNotification(title, options));

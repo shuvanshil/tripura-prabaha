@@ -112,6 +112,18 @@ function resetForm() {
     $('editor-title').textContent = 'নতুন সংবাদ';
 }
 
+function getGalleryImages() {
+    return Array.from(document.querySelectorAll('.gallery-url-input'))
+        .map(input => input.value.trim())
+        .filter(Boolean);
+}
+
+function setGalleryImages(images = []) {
+    document.querySelectorAll('.gallery-url-input').forEach((input, index) => {
+        input.value = images[index] || '';
+    });
+}
+
 function resetAdForm() {
     $('ad-form')?.reset();
     $('ad-id').value = '';
@@ -128,6 +140,7 @@ async function handleSaveNews(event) {
         setMessage('সংবাদ সেভ হচ্ছে...');
         const id = $('news-id').value;
         const imageUrl = $('news-image-url').value.trim();
+        const galleryImages = getGalleryImages();
         const now = firebase.firestore.FieldValue.serverTimestamp();
 
         const payload = {
@@ -136,6 +149,7 @@ async function handleSaveNews(event) {
             excerpt: $('news-excerpt').value.trim(),
             content: $('news-content').value.trim(),
             imageUrl,
+            galleryImages,
             published: $('news-published').checked,
             featured: $('news-featured').checked,
             breaking: $('news-breaking').checked,
@@ -301,6 +315,7 @@ async function editNews(id) {
     $('news-excerpt').value = data.excerpt || '';
     $('news-content').value = data.content || '';
     $('news-image-url').value = data.imageUrl || '';
+    setGalleryImages(data.galleryImages || []);
     $('news-published').checked = data.published !== false;
     $('news-featured').checked = !!data.featured;
     $('news-breaking').checked = !!data.breaking;
