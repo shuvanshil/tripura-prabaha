@@ -389,7 +389,10 @@ function renderArticle(article, target) {
     target.innerHTML = `
     <div class="article-kicker">${safeText(article.category || 'সংবাদ')}</div>
     <h1>${safeText(article.title)}</h1>
-    <div class="article-meta">${formatDate(article.createdAt)} · ${timeAgo(article.createdAt)}</div>
+    <div class="article-meta">
+      <span>${formatDate(article.createdAt)} · ${timeAgo(article.createdAt)}</span>
+      <span> ~ ত্রিপুরা প্রবাহ প্রতিবেদন</span>
+    </div>
     <img class="article-image" src="${safeImg(article.imageUrl)}" alt="${safeText(article.title)}" onerror="this.src='${PLACEHOLDER}'">
     ${article.excerpt ? `<p class="article-excerpt">${safeText(article.excerpt)}</p>` : ''}
     <div class="article-share">
