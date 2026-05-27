@@ -33,6 +33,37 @@ function pageUrl(path) {
     return new URL(path, window.location.href).href;
 }
 
+function setMeta(selector, value) {
+    let el = document.head.querySelector(selector);
+    if (!el) {
+        el = document.createElement('meta');
+        const propertyMatch = selector.match(/property="([^"]+)"/);
+        const nameMatch = selector.match(/name="([^"]+)"/);
+        if (propertyMatch) el.setAttribute('property', propertyMatch[1]);
+        if (nameMatch) el.setAttribute('name', nameMatch[1]);
+        document.head.appendChild(el);
+    }
+    el.setAttribute('content', value || '');
+}
+
+function updateArticleMeta(article) {
+    const title = article.title || 'সংবাদ | ত্রিপুরা প্রবাহ';
+    const description = article.excerpt || (article.content ? `${article.content.substring(0, 150)}...` : 'ত্রিপুরা, দেশ ও বিশ্বের নির্ভরযোগ্য বাংলা সংবাদ।');
+    const image = article.imageUrl ? new URL(article.imageUrl, window.location.href).href : pageUrl('assets/images/icon.jpeg');
+    const url = window.location.href;
+
+    document.title = `${title} | ত্রিপুরা প্রবাহ`;
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="og:image"]', image);
+    setMeta('meta[property="og:image:secure_url"]', image);
+    setMeta('meta[property="og:url"]', url);
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', description);
+    setMeta('meta[name="twitter:image"]', image);
+}
+
 function timeAgo(timestamp) {
     if (!timestamp) return '';
     const now = new Date();
@@ -335,7 +366,7 @@ async function loadArticlePage() {
 
         const article = { id: doc.id, ...doc.data() };
         ref.update({ views: firebase.firestore.FieldValue.increment(1) }).catch(() => { });
-        document.title = `${article.title} | ত্রিপুরা প্রবাহ`;
+        updateArticleMeta(article);
         renderArticle(article, target);
         loadRelated(article);
     } catch (e) {
@@ -348,17 +379,12 @@ function renderArticle(article, target) {
     const url = location.href;
     const shareTitle = enc(article.title || '');
     const shareUrl = enc(url);
-    const paragraphs = safeText(article.content || '').split(/\n{2,}|\r?\n/).filter(Boolean);
+    const rawContent = article.content || '';
+    const paragraphs = safeText(rawContent).split(/\n{2,}|\r?\n/).filter(Boolean);
     const galleryImages = Array.isArray(article.galleryImages)
         ? article.galleryImages.filter(Boolean)
         : [];
-    const galleryHtml = galleryImages.length ? `
-      <div class="article-gallery">
-        ${galleryImages.map((image, index) => `
-          <img src="${safeImg(image)}" alt="${safeText(article.title)} ছবি ${index + 2}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
-        `).join('')}
-      </div>
-    ` : '';
+    const articleBody = buildArticleBody(rawContent, galleryImages, article.title);
     target.classList.remove('skeleton-article');
     target.innerHTML = `
     <div class="article-kicker">${safeText(article.category || 'সংবাদ')}</div>
@@ -372,9 +398,71 @@ function renderArticle(article, target) {
       <button onclick="shareTwitter(decodeURIComponent('${shareTitle}'), decodeURIComponent('${shareUrl}'))">X</button>
       <button onclick="shareGeneral(decodeURIComponent('${shareTitle}'), decodeURIComponent('${shareUrl}'))">Share</button>
     </div>
-    <div class="article-content">${paragraphs.map(p => `<p>${p}</p>`).join('')}</div>
-    ${galleryHtml}
+    <div class="article-content">${articleBody.html}</div>
+    ${articleBody.remainingHtml}
   `;
+}
+
+function buildInlineImage(image, title, index) {
+    return `
+      <figure class="article-inline-image">
+        <img src="${safeImg(image)}" alt="${safeText(title)} ছবি ${index + 1}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
+      </figure>
+    `;
+}
+
+function buildArticleBody(rawContent, galleryImages, title) {
+    const markerRegex = /\[(?:image|ছবি)\s*([1-4])\]/ig;
+    const hasMarkers = markerRegex.test(rawContent);
+    const used = new Set();
+
+    if (!hasMarkers) {
+        const paragraphs = safeText(rawContent).split(/\n{2,}|\r?\n/).filter(Boolean);
+        const html = paragraphs.map((paragraph, index) => `
+          <p>${paragraph}</p>
+          ${galleryImages[index] ? buildInlineImage(galleryImages[index], title, index + 1) : ''}
+        `).join('');
+        const remainingHtml = buildRemainingGallery(galleryImages.slice(paragraphs.length), title, paragraphs.length + 1);
+        return { html, remainingHtml };
+    }
+
+    const blocks = rawContent.split(/\n{2,}|\r?\n/).filter(Boolean);
+    const html = blocks.map(block => {
+        let output = '';
+        let lastIndex = 0;
+        block.replace(markerRegex, (match, num, offset) => {
+            const before = block.slice(lastIndex, offset).trim();
+            if (before) output += `<p>${safeText(before)}</p>`;
+            const imageIndex = Number(num) - 1;
+            const image = galleryImages[imageIndex];
+            if (image) {
+                used.add(imageIndex);
+                output += buildInlineImage(image, title, imageIndex + 1);
+            }
+            lastIndex = offset + match.length;
+            return match;
+        });
+        const after = block.slice(lastIndex).trim();
+        if (after) output += `<p>${safeText(after)}</p>`;
+        return output;
+    }).join('');
+
+    const remainingImages = galleryImages.filter((_, index) => !used.has(index));
+    return {
+        html,
+        remainingHtml: buildRemainingGallery(remainingImages, title, used.size + 1)
+    };
+}
+
+function buildRemainingGallery(images, title, startIndex = 1) {
+    if (!images.length) return '';
+    return `
+      <div class="article-gallery">
+        ${images.map((image, index) => `
+          <img src="${safeImg(image)}" alt="${safeText(title)} ছবি ${startIndex + index + 1}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
+        `).join('')}
+      </div>
+    `;
 }
 
 async function loadRelated(article) {
