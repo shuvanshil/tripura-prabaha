@@ -3,7 +3,13 @@
 const $ = id => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
 
-const CATEGORIES = ['রাজনীতি', 'খেলাধুলা', 'বিনোদন', 'আন্তর্জাতিক', 'প্রযুক্তি', 'স্বাস্থ্য', 'শিক্ষা', 'ব্যবসা'];
+const CATEGORIES = ['দেশ', 'জাতীয়', 'রাজ্য', 'জেলা', 'সম্পাদকীয়', 'খেলাধুলা', 'বিনোদন', 'আন্তর্জাতিক', 'স্বাস্থ্য'];
+const CATEGORY_ALIASES = {
+    'রাজনীতি': 'জাতীয়',
+    'ব্যবসা': 'দেশ',
+    'শিক্ষা': 'রাজ্য',
+    'প্রযুক্তি': 'দেশ'
+};
 const PLACEHOLDER = 'https://placehold.co/800x520/C8102E/ffffff?text=%E0%A6%A4%E0%A7%8D%E0%A6%B0%E0%A6%BF%E0%A6%AA%E0%A7%81%E0%A6%B0%E0%A6%BE+%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%AC%E0%A6%BE%E0%A6%B9';
 
 let lastVisible = null;
@@ -19,6 +25,10 @@ function safeText(value = '') {
     return String(value).replace(/[&<>"']/g, char => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
     }[char]));
+}
+
+function normalizeCategory(category = 'সংবাদ') {
+    return CATEGORY_ALIASES[category] || category || 'সংবাদ';
 }
 
 function enc(value = '') {
@@ -119,7 +129,7 @@ function shareGeneral(title, url) {
 function buildNewsCard(article) {
     const title = safeText(article.title);
     const shareTitle = enc(article.title || '');
-    const category = safeText(article.category || 'সংবাদ');
+    const category = safeText(normalizeCategory(article.category || 'সংবাদ'));
     const url = `news.html?id=${encodeURIComponent(article.id)}`;
     const absoluteUrl = pageUrl(url);
     const excerpt = safeText(article.excerpt || (article.content ? `${article.content.substring(0, 110)}...` : ''));
@@ -152,7 +162,7 @@ function buildListItem(article) {
     <article class="news-list-item" onclick="location.href='${url}'">
       <img class="news-list-img" src="${safeImg(article.imageUrl)}" alt="${title}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">
       <div class="news-list-body">
-        <span class="card-category-tag">${safeText(article.category || 'সংবাদ')}</span>
+        <span class="card-category-tag">${safeText(normalizeCategory(article.category || 'সংবাদ'))}</span>
         <h3 class="news-list-title">${title}</h3>
         <div class="card-meta-dark"><span>${timeAgo(article.createdAt)}</span></div>
       </div>
@@ -217,7 +227,7 @@ function renderHero(articles) {
     document.querySelector('.hero-main').innerHTML = `
     <a href="${mainUrl}"><img src="${safeImg(main.imageUrl)}" alt="${safeText(main.title)}" onerror="this.src='${PLACEHOLDER}'"></a>
     <div class="card-overlay">
-      <span class="card-category-tag">${safeText(main.category || 'সংবাদ')}</span>
+      <span class="card-category-tag">${safeText(normalizeCategory(main.category || 'সংবাদ'))}</span>
       <h1 class="card-title"><a href="${mainUrl}">${safeText(main.title)}</a></h1>
       <div class="card-meta">
         <span>${timeAgo(main.createdAt)}</span>
@@ -234,7 +244,7 @@ function renderHero(articles) {
         el.innerHTML = `
       <a href="${url}"><img src="${safeImg(article.imageUrl)}" alt="${safeText(article.title)}" onerror="this.src='${PLACEHOLDER}'"></a>
       <div class="card-info">
-        <span class="card-category-tag">${safeText(article.category || 'সংবাদ')}</span>
+        <span class="card-category-tag">${safeText(normalizeCategory(article.category || 'সংবাদ'))}</span>
         <h2 class="card-title-dark"><a href="${url}">${safeText(article.title)}</a></h2>
         <div class="card-meta-dark"><span>${timeAgo(article.createdAt)}</span></div>
       </div>
@@ -254,7 +264,7 @@ async function loadNews(category = 'all', reset = true) {
     try {
         if (reset) {
             const articles = await fetchPublishedNews(100);
-            homeArticleCache = category === 'all' ? articles : articles.filter(a => a.category === category);
+            homeArticleCache = category === 'all' ? articles : articles.filter(a => normalizeCategory(a.category) === category);
         }
         renderPagedArticles(homeArticleCache, grid, $('load-more'), reset, () => homePage, value => { homePage = value; });
     } catch (err) {
@@ -387,7 +397,7 @@ function renderArticle(article, target) {
     const articleBody = buildArticleBody(rawContent, galleryImages, article.title);
     target.classList.remove('skeleton-article');
     target.innerHTML = `
-    <div class="article-kicker">${safeText(article.category || 'সংবাদ')}</div>
+    <div class="article-kicker">${safeText(normalizeCategory(article.category || 'সংবাদ'))}</div>
     <h1>${safeText(article.title)}</h1>
     <div class="article-meta">
       <span>${formatDate(article.createdAt)} · ${timeAgo(article.createdAt)}</span>
@@ -474,7 +484,7 @@ async function loadRelated(article) {
     try {
         const articles = (await fetchPublishedNews(80))
             .filter(a => a.id !== article.id)
-            .filter(a => !article.category || a.category === article.category)
+            .filter(a => !article.category || normalizeCategory(a.category) === normalizeCategory(article.category))
             .slice(0, 4);
         list.innerHTML = articles.length ? articles.map(buildListItem).join('') : '<p class="muted">আরও সংবাদ নেই।</p>';
     } catch (e) {
@@ -485,11 +495,11 @@ async function loadRelated(article) {
 async function loadCategoryPage(reset = true) {
     const grid = $('category-grid');
     if (!grid) return;
-    activeCategoryPage = new URLSearchParams(location.search).get('cat') || CATEGORIES[0];
+    activeCategoryPage = normalizeCategory(new URLSearchParams(location.search).get('cat') || CATEGORIES[0]);
     const title = $('category-title');
     if (title) title.textContent = `${activeCategoryPage} সংবাদ`;
     document.title = `${activeCategoryPage} | ত্রিপুরা প্রবাহ`;
-    $$('.nav-links a[data-cat]').forEach(a => a.classList.toggle('active', a.dataset.cat === activeCategoryPage));
+    $$('.nav-links a[data-cat]').forEach(a => a.classList.toggle('active', normalizeCategory(a.dataset.cat) === activeCategoryPage));
 
     if (reset) {
         categoryPage = 0;
@@ -498,7 +508,7 @@ async function loadCategoryPage(reset = true) {
 
     try {
         if (reset) {
-            categoryArticleCache = (await fetchPublishedNews(100)).filter(a => a.category === activeCategoryPage);
+            categoryArticleCache = (await fetchPublishedNews(100)).filter(a => normalizeCategory(a.category) === activeCategoryPage);
         }
         renderPagedArticles(categoryArticleCache, grid, $('category-load-more'), reset, () => categoryPage, value => { categoryPage = value; });
     } catch (e) {

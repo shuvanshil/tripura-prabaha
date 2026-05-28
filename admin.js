@@ -13,6 +13,17 @@ function safeText(value = '') {
     }[char]));
 }
 
+const CATEGORY_ALIASES = {
+    'রাজনীতি': 'জাতীয়',
+    'ব্যবসা': 'দেশ',
+    'শিক্ষা': 'রাজ্য',
+    'প্রযুক্তি': 'দেশ'
+};
+
+function normalizeCategory(category = 'দেশ') {
+    return CATEGORY_ALIASES[category] || category || 'দেশ';
+}
+
 function setMessage(message, type = 'info') {
     const dashboard = $('dashboard');
     const dashboardVisible = dashboard && !dashboard.classList.contains('hidden');
@@ -272,7 +283,7 @@ function adminListItem(id, data) {
     return `
     <article class="admin-news-item">
       <div>
-        <span class="card-category-tag">${safeText(data.category || 'সংবাদ')}</span>
+        <span class="card-category-tag">${safeText(normalizeCategory(data.category || 'সংবাদ'))}</span>
         <h3>${safeText(data.title || '')}</h3>
         <p>${data.published ? 'Published' : 'Draft'} · ${data.breaking ? 'Breaking' : 'Regular'} · ${data.featured ? 'Featured' : 'Normal'}</p>
       </div>
@@ -311,7 +322,7 @@ async function editNews(id) {
     const data = doc.data();
     $('news-id').value = id;
     $('news-title').value = data.title || '';
-    $('news-category').value = data.category || 'রাজনীতি';
+    $('news-category').value = normalizeCategory(data.category || 'দেশ');
     $('news-excerpt').value = data.excerpt || '';
     $('news-content').value = data.content || '';
     $('news-image-url').value = data.imageUrl || '';
