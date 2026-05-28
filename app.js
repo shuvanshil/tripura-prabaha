@@ -394,7 +394,10 @@ function renderArticle(article, target) {
     const galleryImages = Array.isArray(article.galleryImages)
         ? article.galleryImages.filter(Boolean)
         : [];
-    const articleBody = buildArticleBody(rawContent, galleryImages, article.title);
+    const videoUrls = Array.isArray(article.videoUrls)
+        ? article.videoUrls.filter(Boolean)
+        : [];
+    const articleBody = buildArticleBody(rawContent, galleryImages, videoUrls, article.title);
     target.classList.remove('skeleton-article');
     target.innerHTML = `
     <div class="article-kicker">${safeText(normalizeCategory(article.category || 'সংবাদ'))}</div>
@@ -424,33 +427,76 @@ function buildInlineImage(image, title, index) {
     `;
 }
 
-function buildArticleBody(rawContent, galleryImages, title) {
-    const markerRegex = /\[(?:image|ছবি)\s*([1-4])\]/ig;
+function buildVideoEmbed(url, title, index) {
+    const safeUrl = safeText(url);
+    const youtube = getYouTubeEmbedUrl(url);
+    if (youtube) {
+        return `
+          <figure class="article-video">
+            <iframe src="${safeText(youtube)}" title="${safeText(title)} ভিডিও ${index}" loading="lazy" allowfullscreen></iframe>
+          </figure>
+        `;
+    }
+    return `
+      <figure class="article-video">
+        <video src="${safeUrl}" controls preload="metadata"></video>
+      </figure>
+    `;
+}
+
+function getYouTubeEmbedUrl(url) {
+    try {
+        const parsed = new URL(url);
+        let id = '';
+        if (parsed.hostname.includes('youtu.be')) {
+            id = parsed.pathname.replace('/', '');
+        } else if (parsed.hostname.includes('youtube.com')) {
+            id = parsed.searchParams.get('v') || parsed.pathname.split('/').pop();
+        }
+        return id ? `https://www.youtube.com/embed/${id}` : '';
+    } catch {
+        return '';
+    }
+}
+
+function buildArticleBody(rawContent, galleryImages, videoUrls, title) {
+    const markerRegex = /\[(image|ছবি|video|ভিডিও)\s*([1-4])\]/ig;
     const hasMarkers = markerRegex.test(rawContent);
     const used = new Set();
+    const usedVideos = new Set();
 
     if (!hasMarkers) {
         const paragraphs = safeText(rawContent).split(/\n{2,}|\r?\n/).filter(Boolean);
         const html = paragraphs.map((paragraph, index) => `
           <p>${paragraph}</p>
           ${galleryImages[index] ? buildInlineImage(galleryImages[index], title, index + 1) : ''}
+          ${videoUrls[index] ? buildVideoEmbed(videoUrls[index], title, index + 1) : ''}
         `).join('');
         const remainingHtml = buildRemainingGallery(galleryImages.slice(paragraphs.length), title, paragraphs.length + 1);
-        return { html, remainingHtml };
+        const remainingVideosHtml = buildRemainingVideos(videoUrls.slice(paragraphs.length), title, paragraphs.length + 1);
+        return { html, remainingHtml: remainingHtml + remainingVideosHtml };
     }
 
     const blocks = rawContent.split(/\n{2,}|\r?\n/).filter(Boolean);
     const html = blocks.map(block => {
         let output = '';
         let lastIndex = 0;
-        block.replace(markerRegex, (match, num, offset) => {
+        block.replace(markerRegex, (match, type, num, offset) => {
             const before = block.slice(lastIndex, offset).trim();
             if (before) output += `<p>${safeText(before)}</p>`;
-            const imageIndex = Number(num) - 1;
-            const image = galleryImages[imageIndex];
-            if (image) {
-                used.add(imageIndex);
-                output += buildInlineImage(image, title, imageIndex + 1);
+            const itemIndex = Number(num) - 1;
+            if (type.toLowerCase() === 'video' || type === 'ভিডিও') {
+                const video = videoUrls[itemIndex];
+                if (video) {
+                    usedVideos.add(itemIndex);
+                    output += buildVideoEmbed(video, title, itemIndex + 1);
+                }
+            } else {
+                const image = galleryImages[itemIndex];
+                if (image) {
+                    used.add(itemIndex);
+                    output += buildInlineImage(image, title, itemIndex + 1);
+                }
             }
             lastIndex = offset + match.length;
             return match;
@@ -461,9 +507,10 @@ function buildArticleBody(rawContent, galleryImages, title) {
     }).join('');
 
     const remainingImages = galleryImages.filter((_, index) => !used.has(index));
+    const remainingVideos = videoUrls.filter((_, index) => !usedVideos.has(index));
     return {
         html,
-        remainingHtml: buildRemainingGallery(remainingImages, title, used.size + 1)
+        remainingHtml: buildRemainingGallery(remainingImages, title, used.size + 1) + buildRemainingVideos(remainingVideos, title, usedVideos.size + 1)
     };
 }
 
@@ -476,6 +523,11 @@ function buildRemainingGallery(images, title, startIndex = 1) {
         `).join('')}
       </div>
     `;
+}
+
+function buildRemainingVideos(videos, title, startIndex = 1) {
+    if (!videos.length) return '';
+    return videos.map((video, index) => buildVideoEmbed(video, title, startIndex + index)).join('');
 }
 
 async function loadRelated(article) {

@@ -837,6 +837,20 @@ footer {
   border-radius: var(--radius);
   border: 1px solid var(--border);
 }
+.article-video {
+  margin: 6px 0 24px;
+}
+.article-video iframe,
+.article-video video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #000;
+}
+.article-video iframe {
+  display: block;
+}
 .article-gallery {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

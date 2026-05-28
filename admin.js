@@ -129,9 +129,21 @@ function getGalleryImages() {
         .filter(Boolean);
 }
 
+function getVideoUrls() {
+    return Array.from(document.querySelectorAll('.video-url-input'))
+        .map(input => input.value.trim())
+        .filter(Boolean);
+}
+
 function setGalleryImages(images = []) {
     document.querySelectorAll('.gallery-url-input').forEach((input, index) => {
         input.value = images[index] || '';
+    });
+}
+
+function setVideoUrls(videos = []) {
+    document.querySelectorAll('.video-url-input').forEach((input, index) => {
+        input.value = videos[index] || '';
     });
 }
 
@@ -152,6 +164,7 @@ async function handleSaveNews(event) {
         const id = $('news-id').value;
         const imageUrl = $('news-image-url').value.trim();
         const galleryImages = getGalleryImages();
+        const videoUrls = getVideoUrls();
         const now = firebase.firestore.FieldValue.serverTimestamp();
 
         const payload = {
@@ -161,6 +174,7 @@ async function handleSaveNews(event) {
             content: $('news-content').value.trim(),
             imageUrl,
             galleryImages,
+            videoUrls,
             published: $('news-published').checked,
             featured: $('news-featured').checked,
             breaking: $('news-breaking').checked,
@@ -327,6 +341,7 @@ async function editNews(id) {
     $('news-content').value = data.content || '';
     $('news-image-url').value = data.imageUrl || '';
     setGalleryImages(data.galleryImages || []);
+    setVideoUrls(data.videoUrls || []);
     $('news-published').checked = data.published !== false;
     $('news-featured').checked = !!data.featured;
     $('news-breaking').checked = !!data.breaking;
