@@ -1057,6 +1057,11 @@ footer {
   flex-direction: column;
   gap: 10px;
 }
+.admin-list-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
+}
 .admin-news-item {
   display: flex;
   justify-content: space-between;

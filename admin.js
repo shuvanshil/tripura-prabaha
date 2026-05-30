@@ -6,6 +6,9 @@ let currentUser = null;
 let unsubscribeNews = null;
 let unsubscribeAds = null;
 const ADMIN_SESSION_KEY = 'tripuraAdminUid';
+const ADMIN_NEWS_PREVIEW_LIMIT = 8;
+let adminNewsDocs = [];
+let showAllAdminNews = false;
 
 function safeText(value = '') {
     return String(value).replace(/[&<>"']/g, char => ({
@@ -14,7 +17,8 @@ function safeText(value = '') {
 }
 
 const CATEGORY_ALIASES = {
-    'রাজনীতি': 'জাতীয়',
+    'রাজনীতি': 'দেশ',
+    'জাতীয়': 'দেশ',
     'ব্যবসা': 'দেশ',
     'শিক্ষা': 'রাজ্য',
     'প্রযুক্তি': 'দেশ'
@@ -266,13 +270,39 @@ function listenNews() {
         .onSnapshot(snap => {
             if (snap.empty) {
                 list.innerHTML = '<p class="muted">এখনও কোনো সংবাদ নেই।</p>';
+                updateNewsListToggle();
                 return;
             }
-            list.innerHTML = snap.docs.map(doc => adminListItem(doc.id, doc.data())).join('');
+            adminNewsDocs = snap.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+            renderAdminNewsList();
         }, error => {
             console.error(error);
             list.innerHTML = '<p class="muted">সংবাদ তালিকা লোড করা যাচ্ছে না।</p>';
         });
+}
+
+function renderAdminNewsList() {
+    const list = $('admin-news-list');
+    if (!list) return;
+    const visibleDocs = showAllAdminNews ? adminNewsDocs : adminNewsDocs.slice(0, ADMIN_NEWS_PREVIEW_LIMIT);
+    list.innerHTML = visibleDocs.map(doc => adminListItem(doc.id, doc.data)).join('');
+    updateNewsListToggle();
+}
+
+function updateNewsListToggle() {
+    const button = $('toggle-news-list');
+    if (!button) return;
+    if (adminNewsDocs.length <= ADMIN_NEWS_PREVIEW_LIMIT) {
+        button.style.display = 'none';
+        return;
+    }
+    button.style.display = 'inline-flex';
+    button.textContent = showAllAdminNews ? 'Show Latest 8' : `View All (${adminNewsDocs.length})`;
+}
+
+function toggleAdminNewsList() {
+    showAllAdminNews = !showAllAdminNews;
+    renderAdminNewsList();
 }
 
 function listenAds() {
@@ -419,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('reset-form')?.addEventListener('click', resetForm);
     $('reset-ad-form')?.addEventListener('click', resetAdForm);
     $('logout-btn')?.addEventListener('click', logout);
+    $('toggle-news-list')?.addEventListener('click', toggleAdminNewsList);
 
     auth.onAuthStateChanged(async user => {
         const adminUid = sessionStorage.getItem(ADMIN_SESSION_KEY);

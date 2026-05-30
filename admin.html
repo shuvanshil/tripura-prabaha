@@ -51,14 +51,13 @@
           <label>Category</label>
           <select id="news-category" required>
             <option value="দেশ">দেশ</option>
-            <option value="জাতীয়">জাতীয়</option>
             <option value="রাজ্য">রাজ্য</option>
             <option value="জেলা">জেলা</option>
-            <option value="সম্পাদকীয়">সম্পাদকীয়</option>
-            <option value="খেলাধুলা">খেলাধুলা</option>
-            <option value="বিনোদন">বিনোদন</option>
             <option value="আন্তর্জাতিক">আন্তর্জাতিক</option>
             <option value="স্বাস্থ্য">স্বাস্থ্য</option>
+            <option value="বিনোদন">বিনোদন</option>
+            <option value="খেলাধুলা">খেলাধুলা</option>
+            <option value="সম্পাদকীয়">সম্পাদকীয়</option>
           </select>
           <label>Excerpt</label>
           <textarea id="news-excerpt" rows="3"></textarea>
@@ -94,6 +93,9 @@
         <section class="admin-card">
           <h2>Published/ Draft News</h2>
           <div id="admin-news-list" class="admin-news-list"></div>
+          <div class="admin-list-footer">
+            <button id="toggle-news-list" class="admin-secondary" type="button">View All</button>
+          </div>
         </section>
       </div>
 
