@@ -238,6 +238,7 @@ async function handleSaveAd(event) {
         const id = $('ad-id').value;
         const title = $('ad-title').value.trim();
         const imageUrl = $('ad-image-url').value.trim();
+        const videoUrl = $('ad-video-url').value.trim();
         const linkUrl = $('ad-link-url').value.trim();
 
         if (!title) {
@@ -261,6 +262,8 @@ async function handleSaveAd(event) {
         const payload = {
             title,
             imageUrl,
+            videoUrl,
+            mediaType: videoUrl ? 'video' : 'image',
             linkUrl,
             active: $('ad-active').checked,
             updatedAt: now,
@@ -363,15 +366,26 @@ function adminListItem(id, data) {
   `;
 }
 
+function adminAdPreview(data) {
+    const title = safeText(data.title || 'Ad');
+    if (data.videoUrl) {
+        return `<video src="${safeText(data.videoUrl)}" muted playsinline preload="metadata"></video>`;
+    }
+    if (data.imageUrl) {
+        return `<img src="${safeText(data.imageUrl)}" alt="${title}">`;
+    }
+    return '<div class="admin-video-badge">Ad</div>';
+}
+
 function adminAdListItem(id, data) {
     return `
     <article class="admin-news-item">
       <div class="admin-ad-preview">
-        ${data.imageUrl ? `<img src="${safeText(data.imageUrl)}" alt="${safeText(data.title || 'Ad')}">` : ''}
+        ${adminAdPreview(data)}
         <div>
           <span class="card-category-tag">${data.active ? 'Active' : 'Hidden'}</span>
           <h3>${safeText(data.title || '')}</h3>
-          <p>${data.linkUrl ? safeText(data.linkUrl) : 'No click link'}</p>
+          <p>${data.videoUrl ? 'Video ad' : 'Image ad'} ? ${data.linkUrl ? safeText(data.linkUrl) : 'No click link'}</p>
         </div>
       </div>
       <div class="admin-row-actions">
@@ -417,6 +431,7 @@ async function editAd(id) {
     $('ad-id').value = id;
     $('ad-title').value = data.title || '';
     $('ad-image-url').value = data.imageUrl || '';
+    $('ad-video-url').value = data.videoUrl || '';
     $('ad-link-url').value = data.linkUrl || '';
     $('ad-active').checked = data.active !== false;
     $('ad-editor-title').textContent = 'বিজ্ঞাপন এডিট';
