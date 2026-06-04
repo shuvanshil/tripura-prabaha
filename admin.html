@@ -62,8 +62,13 @@
           <label>Excerpt</label>
           <textarea id="news-excerpt" rows="3"></textarea>
           <label>Content</label>
+          <div class="editor-toolbar" aria-label="Content formatting tools">
+            <button id="bold-content-btn" class="editor-tool-btn" type="button" title="Bold selected text" aria-label="Bold selected content">
+              <strong>B</strong>
+            </button>
+          </div>
           <textarea id="news-content" rows="10" required></textarea>
-          <p class="admin-hint">Extra photos বসাতে story-র যেখানে দরকার সেখানে [image1], [image2], [image3], [image4] লিখুন। না লিখলে ছবি paragraph অনুযায়ী auto বসবে।</p>
+          <p class="admin-hint">Select text and click B to make it bold, or type **bold text** manually. Use [image1], [image2], [image3], [image4] where extra photos should appear.</p>
           <label>Main Image URL</label>
           <input id="news-image-url" type="url" placeholder="https://...">
           <label>Extra Image URLs</label>

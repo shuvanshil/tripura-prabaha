@@ -159,6 +159,29 @@ function resetAdForm() {
     setAdMessage('');
 }
 
+function wrapSelectedContent(before, after = before) {
+    const input = $('news-content');
+    if (!input) return;
+
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const selected = input.value.slice(start, end);
+    const fallback = 'bold text';
+    const formatted = selected
+        ? selected.replace(/[^\r\n]+/g, text => `${before}${text}${after}`)
+        : `${before}${fallback}${after}`;
+    input.setRangeText(formatted, start, end, 'select');
+    input.focus();
+
+    if (!selected) {
+        input.setSelectionRange(start + before.length, start + before.length + fallback.length);
+    }
+}
+
+function setupContentToolbar() {
+    $('bold-content-btn')?.addEventListener('click', () => wrapSelectedContent('**'));
+}
+
 async function handleSaveNews(event) {
     event.preventDefault();
     if (!currentUser) return;
@@ -443,6 +466,7 @@ function setupPasswordToggle() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupPasswordToggle();
+    setupContentToolbar();
     $('email-login-form')?.addEventListener('submit', handleEmailLogin);
     $('news-form')?.addEventListener('submit', handleSaveNews);
     $('ad-form')?.addEventListener('submit', handleSaveAd);

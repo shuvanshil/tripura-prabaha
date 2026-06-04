@@ -28,6 +28,10 @@ function safeText(value = '') {
     }[char]));
 }
 
+function formatRichText(value = '') {
+    return safeText(value).replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+}
+
 function normalizeCategory(category = 'সংবাদ') {
     return CATEGORY_ALIASES[category] || category || 'সংবাদ';
 }
@@ -391,7 +395,6 @@ function renderArticle(article, target) {
     const shareTitle = enc(article.title || '');
     const shareUrl = enc(url);
     const rawContent = article.content || '';
-    const paragraphs = safeText(rawContent).split(/\n{2,}|\r?\n/).filter(Boolean);
     const galleryImages = Array.isArray(article.galleryImages)
         ? article.galleryImages.filter(Boolean)
         : [];
@@ -467,9 +470,9 @@ function buildArticleBody(rawContent, galleryImages, videoUrls, title) {
     const usedVideos = new Set();
 
     if (!hasMarkers) {
-        const paragraphs = safeText(rawContent).split(/\n{2,}|\r?\n/).filter(Boolean);
+        const paragraphs = rawContent.split(/\n{2,}|\r?\n/).filter(Boolean);
         const html = paragraphs.map((paragraph, index) => `
-          <p>${paragraph}</p>
+          <p>${formatRichText(paragraph)}</p>
           ${galleryImages[index] ? buildInlineImage(galleryImages[index], title, index + 1) : ''}
           ${videoUrls[index] ? buildVideoEmbed(videoUrls[index], title, index + 1) : ''}
         `).join('');
@@ -484,7 +487,7 @@ function buildArticleBody(rawContent, galleryImages, videoUrls, title) {
         let lastIndex = 0;
         block.replace(markerRegex, (match, type, num, offset) => {
             const before = block.slice(lastIndex, offset).trim();
-            if (before) output += `<p>${safeText(before)}</p>`;
+            if (before) output += `<p>${formatRichText(before)}</p>`;
             const itemIndex = Number(num) - 1;
             if (type.toLowerCase() === 'video' || type === 'ভিডিও') {
                 const video = videoUrls[itemIndex];
@@ -503,7 +506,7 @@ function buildArticleBody(rawContent, galleryImages, videoUrls, title) {
             return match;
         });
         const after = block.slice(lastIndex).trim();
-        if (after) output += `<p>${safeText(after)}</p>`;
+        if (after) output += `<p>${formatRichText(after)}</p>`;
         return output;
     }).join('');
 
