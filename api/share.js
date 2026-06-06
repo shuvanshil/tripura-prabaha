@@ -43,33 +43,30 @@ function absoluteUrl(url, siteUrl) {
   }
 }
 
-exports.handler = async event => {
-  const id = event.queryStringParameters && event.queryStringParameters.id;
+module.exports = async function handler(req, res) {
+  const id = req.query && req.query.id;
   const siteUrl = (process.env.SITE_URL || 'https://www.tripuraprabaha.com').replace(/\/$/, '');
 
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+
   if (!id) {
-    return {
-      statusCode: 404,
-      headers: { 'Content-Type': 'text/html; charset=UTF-8' },
-      body: '<h1>News not found</h1>'
-    };
+    res.status(404).send('<h1>News not found</h1>');
+    return;
   }
 
   try {
     getFirebaseApp();
-    const doc = await admin.firestore().collection('news').doc(id).get();
+    const doc = await admin.firestore().collection('news').doc(String(id)).get();
 
     if (!doc.exists || doc.data().published === false) {
-      return {
-        statusCode: 404,
-        headers: { 'Content-Type': 'text/html; charset=UTF-8' },
-        body: '<h1>News not found</h1>'
-      };
+      res.status(404).send('<h1>News not found</h1>');
+      return;
     }
 
     const news = doc.data();
-    const articleUrl = `${siteUrl}/news.html?id=${encodeURIComponent(id)}`;
-    const shareUrl = `${siteUrl}/share/${encodeURIComponent(id)}`;
+    const encodedId = encodeURIComponent(String(id));
+    const articleUrl = `${siteUrl}/news.html?id=${encodedId}`;
+    const shareUrl = `${siteUrl}/share/${encodedId}`;
     const title = escapeHtml(news.title || 'সংবাদ | ত্রিপুরা প্রবাহ');
     const description = escapeHtml(
       stripText(news.excerpt || news.content || 'ত্রিপুরা, দেশ ও বিশ্বের নির্ভরযোগ্য বাংলা সংবাদ।').slice(0, 180)
@@ -114,20 +111,10 @@ exports.handler = async event => {
 </body>
 </html>`;
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'text/html; charset=UTF-8',
-        'Cache-Control': 'public, max-age=300'
-      },
-      body: html
-    };
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.status(200).send(html);
   } catch (error) {
     console.error(error);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'text/html; charset=UTF-8' },
-      body: '<h1>Share preview failed</h1>'
-    };
+    res.status(500).send('<h1>Share preview failed</h1>');
   }
 };
