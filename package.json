@@ -2,8 +2,5 @@
   "name": "tripura-prabaha",
   "version": "1.0.0",
   "private": true,
-  "description": "Tripura Prabaha Bengali news portal",
-  "dependencies": {
-    "firebase-admin": "^13.0.0"
-  }
+  "description": "Tripura Prabaha Bengali news portal"
 }

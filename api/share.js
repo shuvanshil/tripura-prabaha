@@ -1,20 +1,5 @@
-const admin = require('firebase-admin');
-
-function getFirebaseApp() {
-  if (admin.apps.length) return admin.app();
-
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
-
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey
-    })
-  });
-
-  return admin.app();
-}
+const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'tripura-prabaha';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || 'AIzaSyDKkQAV34aLQQ05kIRMAMN6C7R10g1gtR4';
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, char => ({
@@ -43,6 +28,39 @@ function absoluteUrl(url, siteUrl) {
   }
 }
 
+function firestoreValue(value) {
+  if (!value) return undefined;
+  if ('stringValue' in value) return value.stringValue;
+  if ('booleanValue' in value) return value.booleanValue;
+  if ('integerValue' in value) return Number(value.integerValue);
+  if ('doubleValue' in value) return Number(value.doubleValue);
+  if ('timestampValue' in value) return value.timestampValue;
+  if ('arrayValue' in value) return (value.arrayValue.values || []).map(firestoreValue);
+  if ('mapValue' in value) return firestoreFields(value.mapValue.fields || {});
+  return undefined;
+}
+
+function firestoreFields(fields = {}) {
+  return Object.fromEntries(
+    Object.entries(fields).map(([key, value]) => [key, firestoreValue(value)])
+  );
+}
+
+async function getNews(id) {
+  const encodedId = encodeURIComponent(id);
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/news/${encodedId}?key=${FIREBASE_API_KEY}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error('Firestore REST error:', response.status, text);
+    return null;
+  }
+
+  const data = await response.json();
+  return firestoreFields(data.fields || {});
+}
+
 module.exports = async function handler(req, res) {
   const id = req.query && req.query.id;
   const siteUrl = (process.env.SITE_URL || 'https://www.tripuraprabaha.com').replace(/\/$/, '');
@@ -55,15 +73,13 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    getFirebaseApp();
-    const doc = await admin.firestore().collection('news').doc(String(id)).get();
+    const news = await getNews(String(id));
 
-    if (!doc.exists || doc.data().published === false) {
+    if (!news || news.published === false) {
       res.status(404).send('<h1>News not found</h1>');
       return;
     }
 
-    const news = doc.data();
     const encodedId = encodeURIComponent(String(id));
     const articleUrl = `${siteUrl}/news.html?id=${encodedId}`;
     const shareUrl = `${siteUrl}/share/${encodedId}`;
