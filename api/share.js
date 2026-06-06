@@ -72,6 +72,8 @@ module.exports = async function handler(req, res) {
   const articleUrl = `${siteUrl}/news.html?id=${encodedId}`;
 
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Vary', 'User-Agent');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
 
   if (!id) {
     res.status(404).send('<h1>News not found</h1>');
@@ -80,6 +82,7 @@ module.exports = async function handler(req, res) {
 
   try {
     if (!isSocialCrawler(req.headers['user-agent'] || '')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
       res.writeHead(302, { Location: articleUrl });
       res.end();
       return;
@@ -137,7 +140,7 @@ module.exports = async function handler(req, res) {
 </body>
 </html>`;
 
-    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.status(200).send(html);
   } catch (error) {
     console.error(error);
