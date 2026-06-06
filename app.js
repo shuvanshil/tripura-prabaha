@@ -343,23 +343,41 @@ async function loadAds() {
             .where('active', '==', true)
             .limit(5)
             .get();
-        const ads = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(ad => ad.imageUrl);
+        const ads = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(ad => ad.imageUrl || ad.videoUrl);
         if (!ads.length) {
             list.innerHTML = '<p class="muted">বিজ্ঞাপনের জন্য যোগাযোগ করুন।</p>';
             return;
         }
-        list.innerHTML = ads.map(ad => {
-            const image = safeImg(ad.imageUrl);
-            const title = safeText(ad.title || 'বিজ্ঞাপন');
-            const img = `<img src="${image}" alt="${title}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">`;
-            return ad.linkUrl
-                ? `<a class="ad-poster" href="${safeText(ad.linkUrl)}" target="_blank" rel="noopener">${img}</a>`
-                : `<div class="ad-poster">${img}</div>`;
-        }).join('');
+        list.innerHTML = ads.map(buildAdPoster).join('');
     } catch (e) {
         console.error('Ad load error:', e);
         list.innerHTML = '<p class="muted">বিজ্ঞাপন লোড করা যাচ্ছে না।</p>';
     }
+}
+
+function buildAdPoster(ad) {
+    const title = safeText(ad.title || 'বিজ্ঞাপন');
+    const clickLink = ad.linkUrl && /^https?:\/\//i.test(ad.linkUrl) ? safeText(ad.linkUrl) : '';
+    let media = '';
+
+    if (ad.videoUrl) {
+        const youtube = getYouTubeEmbedUrl(ad.videoUrl);
+        media = youtube
+            ? `<iframe src="${safeText(youtube)}" title="${title}" loading="lazy" allowfullscreen></iframe>`
+            : `<video src="${safeText(ad.videoUrl)}" controls preload="metadata" playsinline></video>`;
+
+        return `
+            <div class="ad-poster ad-video-poster">
+                ${media}
+                ${clickLink ? `<a class="ad-click-link" href="${clickLink}" target="_blank" rel="noopener">বিজ্ঞাপন দেখুন</a>` : ''}
+            </div>
+        `;
+    }
+
+    media = `<img src="${safeImg(ad.imageUrl)}" alt="${title}" loading="lazy" onerror="this.src='${PLACEHOLDER}'">`;
+    return clickLink
+        ? `<a class="ad-poster" href="${clickLink}" target="_blank" rel="noopener">${media}</a>`
+        : `<div class="ad-poster">${media}</div>`;
 }
 
 async function loadArticlePage() {

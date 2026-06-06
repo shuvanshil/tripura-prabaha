@@ -245,12 +245,16 @@ async function handleSaveAd(event) {
             setAdMessage('Advertiser / Title লিখুন।', 'error');
             return;
         }
-        if (!imageUrl) {
-            setAdMessage('বিজ্ঞাপনের জন্য poster image URL দিন।', 'error');
+        if (!imageUrl && !videoUrl) {
+            setAdMessage('বিজ্ঞাপনের জন্য poster image URL অথবা video URL দিন।', 'error');
             return;
         }
-        if (!/^https?:\/\//i.test(imageUrl)) {
+        if (imageUrl && !/^https?:\/\//i.test(imageUrl)) {
             setAdMessage('Poster Image URL অবশ্যই http:// বা https:// দিয়ে শুরু হতে হবে।', 'error');
+            return;
+        }
+        if (videoUrl && !/^https?:\/\//i.test(videoUrl)) {
+            setAdMessage('Video Ad URL অবশ্যই http:// বা https:// দিয়ে শুরু হতে হবে।', 'error');
             return;
         }
         if (linkUrl && !/^https?:\/\//i.test(linkUrl)) {

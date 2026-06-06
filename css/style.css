@@ -580,8 +580,33 @@ header {
 }
 .ad-poster img {
   width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+.ad-poster video,
+.ad-poster iframe {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  border: 0;
+  background: #000;
+}
+.ad-poster iframe {
+  aspect-ratio: 16 / 9;
+}
+.ad-video-poster {
+  background: #000;
+}
+.ad-click-link {
+  display: block;
+  padding: 10px 12px;
+  background: var(--white);
+  color: var(--red);
+  font-weight: 700;
+  text-align: center;
+  border-top: 1px solid var(--border);
 }
 
 /* ===== SECTIONS ===== */
@@ -1131,13 +1156,15 @@ footer {
   align-items: center;
   gap: 12px;
 }
-.admin-ad-preview img {
+.admin-ad-preview img,
+.admin-ad-preview video {
   width: 72px;
   height: 88px;
   border-radius: var(--radius);
-  object-fit: cover;
+  object-fit: contain;
   border: 1px solid var(--border);
   flex-shrink: 0;
+  background: #000;
 }
 
 /* ===== RESPONSIVE ===== */
