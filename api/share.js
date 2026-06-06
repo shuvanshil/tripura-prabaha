@@ -104,14 +104,15 @@ module.exports = async function handler(req, res) {
   <meta property="og:description" content="${description}">
   <meta property="og:image" content="${image}">
   <meta property="og:image:secure_url" content="${image}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${title}">
   <meta property="og:url" content="${shareUrl}">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="${image}">
-
-  <meta http-equiv="refresh" content="1;url=${articleUrl}">
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 32px; color: #111; }
     img { width: 100%; max-width: 720px; height: auto; display: block; margin: 20px 0; }
@@ -123,7 +124,6 @@ module.exports = async function handler(req, res) {
   <p>${description}</p>
   <img src="${image}" alt="${title}">
   <p><a href="${articleUrl}">সংবাদটি পড়ুন</a></p>
-  <script>setTimeout(function(){ location.replace(${JSON.stringify(articleUrl)}); }, 600);</script>
 </body>
 </html>`;
 

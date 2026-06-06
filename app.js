@@ -48,8 +48,12 @@ function pageUrl(path) {
     return new URL(path, window.location.href).href;
 }
 
-function sharePageUrl(id) {
-    return pageUrl(`share/${encodeURIComponent(id)}`);
+function sharePageUrl(articleOrId) {
+    const id = typeof articleOrId === 'object' ? articleOrId.id : articleOrId;
+    const version = typeof articleOrId === 'object'
+        ? articleDateValue(articleOrId) || Date.now()
+        : Date.now();
+    return pageUrl(`share/${encodeURIComponent(id)}?v=${encodeURIComponent(version)}`);
 }
 
 function setMeta(selector, value) {
@@ -140,7 +144,7 @@ function buildNewsCard(article) {
     const shareTitle = enc(article.title || '');
     const category = safeText(normalizeCategory(article.category || 'সংবাদ'));
     const url = `news.html?id=${encodeURIComponent(article.id)}`;
-    const absoluteUrl = sharePageUrl(article.id);
+    const absoluteUrl = sharePageUrl(article);
     const excerpt = safeText(article.excerpt || (article.content ? `${article.content.substring(0, 110)}...` : ''));
 
     return `
@@ -233,7 +237,7 @@ function renderHero(articles) {
     const main = articles[0];
     const mainUrl = `news.html?id=${encodeURIComponent(main.id)}`;
     const mainTitle = enc(main.title || '');
-    const mainShareUrl = sharePageUrl(main.id);
+    const mainShareUrl = sharePageUrl(main);
     document.querySelector('.hero-main').innerHTML = `
     <a href="${mainUrl}"><img src="${safeImg(main.imageUrl)}" alt="${safeText(main.title)}" onerror="this.src='${PLACEHOLDER}'"></a>
     <div class="card-overlay">
@@ -414,7 +418,7 @@ async function loadArticlePage() {
 }
 
 function renderArticle(article, target) {
-    const url = sharePageUrl(article.id);
+    const url = sharePageUrl(article);
     const shareTitle = enc(article.title || '');
     const shareUrl = enc(url);
     const rawContent = article.content || '';
