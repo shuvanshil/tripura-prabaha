@@ -28,6 +28,10 @@ function absoluteUrl(url, siteUrl) {
   }
 }
 
+function isSocialCrawler(userAgent = '') {
+  return /facebookexternalhit|Facebot|WhatsApp|Twitterbot|LinkedInBot|TelegramBot|Slackbot|Discordbot|SkypeUriPreview|Googlebot|bingbot/i.test(userAgent);
+}
+
 function firestoreValue(value) {
   if (!value) return undefined;
   if ('stringValue' in value) return value.stringValue;
@@ -64,6 +68,8 @@ async function getNews(id) {
 module.exports = async function handler(req, res) {
   const id = req.query && req.query.id;
   const siteUrl = (process.env.SITE_URL || 'https://www.tripuraprabaha.com').replace(/\/$/, '');
+  const encodedId = id ? encodeURIComponent(String(id)) : '';
+  const articleUrl = `${siteUrl}/news.html?id=${encodedId}`;
 
   res.setHeader('Content-Type', 'text/html; charset=UTF-8');
 
@@ -73,6 +79,12 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    if (!isSocialCrawler(req.headers['user-agent'] || '')) {
+      res.writeHead(302, { Location: articleUrl });
+      res.end();
+      return;
+    }
+
     const news = await getNews(String(id));
 
     if (!news || news.published === false) {
@@ -80,8 +92,6 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const encodedId = encodeURIComponent(String(id));
-    const articleUrl = `${siteUrl}/news.html?id=${encodedId}`;
     const shareUrl = `${siteUrl}/share/${encodedId}`;
     const title = escapeHtml(news.title || 'সংবাদ | ত্রিপুরা প্রবাহ');
     const description = escapeHtml(
