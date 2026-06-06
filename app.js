@@ -48,6 +48,10 @@ function pageUrl(path) {
     return new URL(path, window.location.href).href;
 }
 
+function sharePageUrl(id) {
+    return pageUrl(`share/${encodeURIComponent(id)}`);
+}
+
 function setMeta(selector, value) {
     let el = document.head.querySelector(selector);
     if (!el) {
@@ -136,7 +140,7 @@ function buildNewsCard(article) {
     const shareTitle = enc(article.title || '');
     const category = safeText(normalizeCategory(article.category || 'সংবাদ'));
     const url = `news.html?id=${encodeURIComponent(article.id)}`;
-    const absoluteUrl = pageUrl(url);
+    const absoluteUrl = sharePageUrl(article.id);
     const excerpt = safeText(article.excerpt || (article.content ? `${article.content.substring(0, 110)}...` : ''));
 
     return `
@@ -229,6 +233,7 @@ function renderHero(articles) {
     const main = articles[0];
     const mainUrl = `news.html?id=${encodeURIComponent(main.id)}`;
     const mainTitle = enc(main.title || '');
+    const mainShareUrl = sharePageUrl(main.id);
     document.querySelector('.hero-main').innerHTML = `
     <a href="${mainUrl}"><img src="${safeImg(main.imageUrl)}" alt="${safeText(main.title)}" onerror="this.src='${PLACEHOLDER}'"></a>
     <div class="card-overlay">
@@ -236,7 +241,7 @@ function renderHero(articles) {
       <h1 class="card-title"><a href="${mainUrl}">${safeText(main.title)}</a></h1>
       <div class="card-meta">
         <span>${timeAgo(main.createdAt)}</span>
-        <button onclick="event.stopPropagation(); shareWhatsApp(decodeURIComponent('${mainTitle}'), decodeURIComponent('${enc(pageUrl(mainUrl))}'))">WhatsApp শেয়ার</button>
+        <button onclick="event.stopPropagation(); shareWhatsApp(decodeURIComponent('${mainTitle}'), decodeURIComponent('${enc(mainShareUrl)}'))">WhatsApp শেয়ার</button>
       </div>
     </div>
   `;
@@ -409,7 +414,7 @@ async function loadArticlePage() {
 }
 
 function renderArticle(article, target) {
-    const url = location.href;
+    const url = sharePageUrl(article.id);
     const shareTitle = enc(article.title || '');
     const shareUrl = enc(url);
     const rawContent = article.content || '';

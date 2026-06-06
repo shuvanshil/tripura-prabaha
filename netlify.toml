@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/share/:id"
+  to = "/.netlify/functions/share?id=:id"
+  status = 200

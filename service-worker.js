@@ -1,5 +1,5 @@
 // ত্রিপুরা প্রবাহ — Service Worker
-const CACHE_NAME = 'tripura-probaho-v22';
+const CACHE_NAME = 'tripura-probaho-v23';
 const STATIC_ASSETS = [
     './',
     'index.html',
